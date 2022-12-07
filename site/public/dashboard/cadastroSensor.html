@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/funcoes.js"></script>
+    <link rel="shortcut icon" href="../assets/imgs/pilulas2.png" type="image/x-icon">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/modal.css">
+    <link rel="stylesheet" href="../css/cadastro.css">
+    <title>Cadastro</title>
+</head>
+
+<body>
+
+    <div class="corpoModal" id="corpoModal">
+        <div class="modalDeAviso" id="corpoModal">
+            <div class="botaoModal" id="botaoModal">
+                <button class="letra-x" onclick="sumirModal()"></button>
+            </div>
+            <div class="titulo" id="tituloModal">
+                Atenção!
+            </div>
+            <div class="corpo" id="corpoTextoModal">
+                Revise e preencha todos os campos!
+            </div>
+        </div>
+    </div>
+
+
+
+    <a href="dashgeral.html">
+        <div class="logo">
+            <img src="../imgs/voltar.png" alt="">
+        </div>
+    </a>
+    <div class="corpo">
+        <div class="capa2">
+
+        </div>
+        <div class="degrade">
+
+        </div>
+
+        <div class="formLogin">
+            <div class="formulario">
+                <div class="h1">
+                    <h1>Cadastro de Sensores</h1>
+                </div>
+
+                </p>
+                <div class="campo">
+                    <input type="text" id="in_nomeSensor" placeholder="Nome Sensor">
+                </div>
+                <div class="campo" id="selectRemedio">
+
+                </div>
+<!-- 
+                <div class="campoCheck">
+                    <div class="checkbox">
+                        <input type="checkbox" id="checkRemember">
+                        <label for="checkRemember">Aceito <b>todos</b> os termos de uso</label>
+                    </div>
+                </div> -->
+                <div class="button2">
+                    <button class="login" onclick="cadastrarSensor()">Cadastrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+
+
+
+<script>
+    
+    
+    relacaoSetores(sessionStorage.FK_UNIDADE)
+
+    function relacaoSetores(unidade) {
+        //aguardar();
+        fetch(`/medidas/listar/${unidade}`).then(function (resposta) {
+            if (resposta.ok) {
+                if (resposta.status == 204) {
+                    console.log(resposta);
+                    // feed.appendChild(mensagem);
+                    alert("Nenhum resultado encontrado!!");
+                    return
+                }
+
+
+
+                resposta.json().then(function (resposta) {
+                    console.log("Dados recebidos: ", JSON.stringify(resposta));
+                    var conteudoSelect = `<select name="" id="sel_setor">
+                    <option value="" disabled selected>SETOR</option>`
+
+
+                    resposta.forEach(setor => {
+
+                        conteudoSelect += `<option value="${setor.idSetor}"> ${setor.nomeSetor}</option>`
+
+                    });
+
+                    selectRemedio.innerHTML = `${conteudoSelect} </select>`
+
+                    
+                });
+            } else {
+                throw ('Houve um erro na API!');
+            }
+        }).catch(function (resposta) {
+            console.error(resposta);
+
+        });
+    }
+    
+
+</script>
+
+<script>
+    function cadastrarSensor() {
+        // aguardar();
+
+        //Recupere o valor da nova input pelo nome do id
+        // Agora vá para o método fetch logo abaixo
+        const elements = document.getElementsByClassName('corpoModal');
+
+        var nomeSensor = in_nomeSensor.value
+        var fkSetor = sel_setor.value
+        var fkUnidade = sessionStorage.FK_UNIDADE
+
+        if (nomeSensor == "" || fkSetor == "" || fkUnidade == "") {
+            const elements = document.getElementsByClassName('corpoModal');
+            elements[0].style.display = "block"
+            return false;
+        }
+
+
+        // Enviando o valor da nova input
+        fetch("/medidas/cadastrarSensor", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                // crie um atributo que recebe o valor recuperado aqui
+                // Agora vá para o arquivo routes/usuario.js
+                nomeSensorServer: nomeSensor,
+                fkSetorServer: fkSetor,
+                fkUnidadeServer: fkUnidade
+            })
+        }).then(function (resposta) {
+
+            console.log("resposta: ", resposta);
+
+            if (resposta.ok) {
+
+                elements[0].style.display = "block"
+                botaoModal.style.display = 'none'
+                tituloModal.innerHTML = 'Cadastro realizado com sucesso!'
+                corpoTextoModal.innerHTML = ''
+            
+
+                setTimeout(() => {
+                    sumirMensagem();
+                }, "3000")
+
+            } else {
+                throw ("Houve um erro ao tentar realizar o cadastro!");
+            }
+        }).catch(function (resposta) {
+            console.log(`#ERRO: ${resposta}`);
+            // finalizarAguardar();
+        });
+
+        return false;
+    }
+
+
+
+
+
+</script>
